@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas import SignupRequest, LoginRequest
-from app.supabase_client import supabase
+from app.supabase_client import supabase, supabase_admin
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -20,12 +20,23 @@ def signup(payload: SignupRequest):
         if not response.user:
             raise HTTPException(status_code=400, detail="Signup failed")
 
+        user_id = response.user.id
+
+        # Now insert into profiles table
+        profile_response = supabase_admin.table("profiles").insert({
+            "id": user_id,
+            "email": payload.email,
+            "full_name": payload.full_name
+        }).execute()
+
         return {
             "message": "Signup successful",
-            "user_id": response.user.id,
-            "email": response.user.email
+            "user_id": user_id,
+            "email": payload.email
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
