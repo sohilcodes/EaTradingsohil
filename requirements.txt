@@ -3,3 +3,4 @@ uvicorn[standard]==0.34.3
 python-dotenv==1.0.1
 supabase==2.15.3
 python-multipart==0.0.9
+email-validator>=2.0.0
